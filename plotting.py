@@ -1,12 +1,15 @@
 
-
 import pandas as pd
 import matplotlib.pyplot as plt
+
+global currentFig
+currentFig = None
 
 def compare_teams(team1_csv, team2_csv, columns_to_plot):
     """
     Reads two team CSVs, extracts specific data columns, and plots them side by side.
     """
+    num_plots = 1
     # Load the CSVs
     team1_df = pd.read_csv(team1_csv, delimiter=";", encoding="utf-8")
     team2_df = pd.read_csv(team2_csv, delimiter=";", encoding="utf-8")
@@ -16,7 +19,10 @@ def compare_teams(team1_csv, team2_csv, columns_to_plot):
     team2_name = team2_df.iloc[0]["team name"]
 
     # Number of plots needed
-    num_plots = len(columns_to_plot)
+    if isinstance(columns_to_plot, (list)):
+        num_plots = len(columns_to_plot)
+    else:
+        num_plots = 1
 
     # Create subplots
     fig, axes = plt.subplots(1, num_plots, figsize=(5 * num_plots, 5))  # Adjust size based on number of plots
@@ -36,17 +42,15 @@ def compare_teams(team1_csv, team2_csv, columns_to_plot):
         axes[i].set_ylabel("Amount")
 
     # Adjust layout
-    plt.tight_layout()
+    if currentFig is not None:
+        plt.close(currentFig)
+
+    currentFig = plt.tight_layout()
     plt.show()
 
 # Example usage:
-team1_csv = "TEAM VIRTUE.csv"  # Replace with actual filename
-team2_csv = "INFINITE BLUE.csv"  # Replace with actual filename
-
 # Choose specific columns to compare, , "demos inflicted", "time ball possession","avg boost amount", "amount collected","time supersonic speed","amount overfill total", "time slow speed" 
 columns_to_plot = ["count stolen big pads", "count stolen small pads", "amount stolen big pads", "amount stolen small pads"]
-
-compare_teams("teams/INFINITE BLUE.csv", "teams/TEAM VIRTUE.csv", columns_to_plot)
 
 #compare_teams(team1_csv, team2_csv, columns_to_plot)
 
@@ -95,7 +99,10 @@ def compare_players(player1_csv, player2_csv, player3_csv, columns_to_plot):
             print(f"Error processing column '{col}': {e}")
 
     # Adjust layout
-    plt.tight_layout()
+    if currentFig is not None:
+        plt.close(currentFig)
+        
+    currentFig = plt.tight_layout()
     plt.show()
 
 # Example usage:
