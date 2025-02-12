@@ -2,9 +2,6 @@
 import pandas as pd
 import matplotlib.pyplot as plt
 
-global currentFig
-currentFig = None
-
 def compare_teams(team1_csv, team2_csv, columns_to_plot):
     """
     Reads two team CSVs, extracts specific data columns, and plots them side by side.
@@ -40,12 +37,7 @@ def compare_teams(team1_csv, team2_csv, columns_to_plot):
         axes[i].bar([team1_name, team2_name], [team1_value, team2_value], color=["blue", "orange"])
         axes[i].set_title(col)
         axes[i].set_ylabel("Amount")
-
-    # Adjust layout
-    if currentFig is not None:
-        plt.close(currentFig)
-
-    currentFig = plt.tight_layout()
+    plt.tight_layout()
     plt.show()
 
 # Example usage:
@@ -99,10 +91,7 @@ def compare_players(player1_csv, player2_csv, player3_csv, columns_to_plot):
             print(f"Error processing column '{col}': {e}")
 
     # Adjust layout
-    if currentFig is not None:
-        plt.close(currentFig)
-        
-    currentFig = plt.tight_layout()
+    plt.tight_layout()
     plt.show()
 
 # Example usage:

@@ -4,7 +4,7 @@ from plotting import *
 import matplotlib as plt
 
 currentFig = False
-stats = ["count stolen big pads", "count stolen small pads", "amount stolen big pads", "amount stolen small pads"]
+stats = ["count stolen big pads", "count stolen small pads", "amount stolen big pads", "amount stolen small pads", "score", "goals", "saves", "assists", "shots", "shots conceded", "goals conceded", "shooting percentage", "bpm", "avg boost", "amount collected", "0 boost time", "100 boost time", "amount used while supersonic", "amount overfill total", "time slow speed", "time boost speed", "time supersonic speed", "time on ground", "time low in air"]
 teams = "teams/"
 options = [file for file in os.listdir(teams) if file.endswith(".csv")]
 # Create object 
