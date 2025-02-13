@@ -6,7 +6,15 @@ from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.support import expected_conditions as EC
 import time
 import os
-from multiprocessing import Process
+from multiprocessing import Process, current_process
+
+# Get the absolute path of the project directory
+PROJECT_DIR = os.path.dirname(os.path.abspath(__file__))
+DOWNLOAD_DIR = os.path.join(PROJECT_DIR, "unknown")
+
+# Ensure the "unknown" folder exists
+if not os.path.exists(DOWNLOAD_DIR):
+    os.makedirs(DOWNLOAD_DIR)
 
 # List of different URLs for each bot
 urls = [
@@ -16,24 +24,31 @@ urls = [
     "https://ballchasing.com/?player-name=lionblaze&pro=1&playlist=6"
 ]
 
-# Set up Selenium WebDriver
+# Function to run the bot
 def run_bot(bot_id, url):
-    print(f"Bot {bot_id} started - Visiting: {url}")
+    process_name = current_process().name
+    print(f"[{process_name}] Bot {bot_id} started - Visiting: {url}")
 
     # Configure Chrome options
     chrome_options = Options()
     chrome_options.add_experimental_option("prefs", {
-        "download.default_directory": "C:/Users/Owen/Downloads/ballchasing stuff/unknown/",  # Unique folder per bot
+        "download.default_directory": DOWNLOAD_DIR,
         "download.prompt_for_download": False,
         "download.directory_upgrade": True,
+        "safebrowsing.enabled": True
     })
+    
+    # Run Chrome in headless mode to reduce resource usage
+    chrome_options.add_argument("--headless")  # Run without UI
+    chrome_options.add_argument("--disable-gpu")  # Fix for certain headless issues
+    chrome_options.add_argument("--no-sandbox")  # Helps with multiprocessing
+    chrome_options.add_argument("--disable-dev-shm-usage")  # Fixes memory issues
 
     service = Service("C:/Users/Owen/Downloads/chromedriver-win64/chromedriver-win64/chromedriver.exe")
     driver = webdriver.Chrome(service=service, options=chrome_options)
     wait = WebDriverWait(driver, 10)
 
     try:
-        # Open the page with replays
         driver.get(url)
 
         # Scroll down to load all replays
@@ -45,11 +60,10 @@ def run_bot(bot_id, url):
 
         for i in range(len(replay_links)):
             try:
-                # Refresh replay list before clicking
                 replay_links = driver.find_elements(By.CSS_SELECTOR, ".replay-title")
 
                 if i >= len(replay_links):
-                    print(f"Bot {bot_id}: Skipping replay {i + 1} - No more elements found.")
+                    print(f"[{process_name}] Bot {bot_id}: No more replays.")
                     break
 
                 # Scroll into view before clicking
@@ -69,7 +83,7 @@ def run_bot(bot_id, url):
                 download_link = wait.until(EC.element_to_be_clickable((By.XPATH, "//a[contains(@href, '-team-stats.csv')]")))
                 download_link.click()
 
-                print(f"Bot {bot_id}: Downloaded replay {i + 1}")
+                print(f"[{process_name}] Bot {bot_id}: Downloaded replay {i + 1}")
 
                 time.sleep(5)  # Wait for download to complete
 
@@ -80,21 +94,21 @@ def run_bot(bot_id, url):
                 time.sleep(3)
 
             except Exception as e:
-                print(f"Bot {bot_id} - Error on replay {i + 1}: {e}")
+                print(f"[{process_name}] Bot {bot_id} - Error on replay {i + 1}: {e}")
 
     finally:
         driver.quit()
-        print(f"Bot {bot_id} finished.")
+        print(f"[{process_name}] Bot {bot_id} finished.")
 
 # Start multiple bot processes
 if __name__ == "__main__":
     processes = []
 
     for i, url in enumerate(urls):
-        p = Process(target=run_bot, args=(i, url))
+        p = Process(target=run_bot, args=(i, url), name=f"Bot-{i}")
         p.start()
         processes.append(p)
-        time.sleep(2)  # Small delay to avoid overwhelming the server
+        time.sleep(5)  # Increased delay to prevent conflicts
 
     for p in processes:
         p.join()

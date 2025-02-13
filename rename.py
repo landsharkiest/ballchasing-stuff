@@ -1,12 +1,12 @@
 import os
 import pandas as pd
 def rename_csv_files_in_folder(folder_path):
-    file_count = {}\
+    file_count = {}
     
     for file_name in os.listdir(folder_path):
         if file_name.endswith(".csv"):
             file_path = os.path.join(folder_path, file_name)
-            df = pd.read_csv(file_path, delimiter=';')
+            df = pd.read_csv(file_path,delimiter=';')
             
             if df.shape[1] < 3:
                 print(f"Error: {file_name} does not have enough columns.")
